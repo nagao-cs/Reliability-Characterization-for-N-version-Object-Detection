@@ -5,7 +5,19 @@ from pathlib import Path
 
 
 class DetectionResultLoader:
+    """Load ground truth and detection results from files.
+
+    Manages reading of annotated ground truth labels and model detection outputs
+    from disk, organizing them by frame and model version.
+
+    Attributes:
+        gt_dir (str): Path to ground truth label directory.
+        det_dirs (list): Paths to detection result directories for each model.
+        num_version (int): Number of detection models.
+    """
+
     def __init__(self, gt_dir, det_dirs):
+        """Initialize loader with ground truth and detection directories."""
         self.gt_dir = Path(gt_dir)
         self.det_dirs = det_dirs
         self.num_version = len(det_dirs)
@@ -18,6 +30,15 @@ class DetectionResultLoader:
         }
 
     def iter_frame(self) -> Iterator[tuple[dict, dict[dict]]]:
+        """
+        Iterate over frames yielding GT and detection results.
+
+        Yields:
+            Tuple of (frame_idx, gt_dict, dets_dict) where:
+            - frame_idx: Integer frame index (0-based).
+            - gt_dict: {class_id: [(x, y, w, h, dist), ...], ...}
+            - dets_dict: {model_idx: {class_id: [(x, y, w, h, conf), ...], ...}, ...}
+        """
         gt_files = [os.path.join(self.gt_dir, f)
                     for f in os.listdir(self.gt_dir)]
         det_files_dict = {version: [os.path.join(det_dir, det_file) for det_file in os.listdir(det_dir)]
@@ -30,6 +51,18 @@ class DetectionResultLoader:
             yield frame_idx, gt, dets
 
     def _get_gt(self, gt_path) -> dict:
+        """
+        Parse ground truth annotation file.
+
+        Reads YOLO-format ground truth labels from file. Filters out small objects
+        based on SIZE_THRESHOLD and unmapped classes.
+
+        Args:
+            gt_path (str): Path to ground truth text file.
+
+        Returns:
+            Dictionary mapping class_id to list of boxes (x, y, w, h, dist).
+        """
         gt = dict()
         with open(gt_path, 'r') as gt_file:
             lines = gt_file.readlines()
@@ -38,16 +71,14 @@ class DetectionResultLoader:
                     continue
                 parts = line.strip().split(' ')
                 class_id = utils.class_Map.get(
-                    (int(parts[0])), -1)  # -1（無視するクラス）
+                    (int(parts[0])), -1)
                 if class_id == -1:
                     continue
                 x_center = float(parts[1])
-                # if x_center < 0.05 or x_center > 0.95:
-                #     continue
                 y_center = float(parts[2])
                 width = float(parts[3])
                 height = float(parts[4])
-                distance = 0.0  # 仮の値、必要に応じて計算する
+                distance = 0.0
                 size = width * height * utils.IM_WIDTH * utils.IM_HEIGHT
                 if size < utils.SIZE_THRESHOLD:
                     continue
@@ -59,6 +90,17 @@ class DetectionResultLoader:
         return gt
 
     def _get_detections(self, det_path) -> dict:
+        """
+        Parse detection result file and apply camera offset/affine.
+
+        Reads model detection outputs in YOLO format.
+
+        Args:
+            det_path (str): Path to detection result file.
+
+        Returns:
+            Dictionary mapping class_id to list of detections (x, y, w, h, conf).
+        """
         detections = dict()
         with open(det_path, 'r') as det_file:
             lines = det_file.readlines()
@@ -67,14 +109,12 @@ class DetectionResultLoader:
                     continue
                 parts = line.strip().split(' ')
                 class_id = utils.class_Map.get(
-                    (int(parts[0])), -1)  # -1（無視するクラス）
+                    (int(parts[0])), -1)
                 if class_id == -1:
                     continue
                 x_center = float(parts[1])
                 x_center = self.apply_camera_offset(
                     x_center, self.get_camera_name(det_path))
-                # if x_center < 0.05 or x_center > 0.95:
-                #     continue
                 y_center = float(parts[2])
                 width = float(parts[3])
                 height = float(parts[4])
