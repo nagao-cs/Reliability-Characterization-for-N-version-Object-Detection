@@ -8,8 +8,9 @@ from Metrics.Cer import Cer
 from Metrics.CovOD import CovOD
 from Metrics.CerOD import CerOD
 from Metrics.mAP import mAP
-
 from processor import dataset
+
+from utils import config
 
 import pandas as pd
 from itertools import combinations
@@ -234,45 +235,22 @@ def explore_camera_combinations(gt_dir: str, cameras: List[str], num_version: in
 
 
 if __name__ == "__main__":
-    import argparse
-    argparser = argparse.ArgumentParser(
-        description="Evaluate object detection results")
-    argparser.add_argument(
-        "--models",
-        type=str,
-        nargs='+',
-        required=True,
-        choices=["yolov8n", "yolov11n",
-                 "yolov5n", "rtdetr", "yolov8l", "ssd"],
-    )
-    argparser.add_argument(
-        "--iou_th",
-        type=float,
-        default=0.5,
-        help="IOU threshold for evaluation",
-    )
-
     script_dir = Path(__file__).resolve().parent
     os.chdir(script_dir)
-    args = argparser.parse_args()
-    models = args.models
-    print(args)
 
     os.makedirs("./result", exist_ok=True)
 
-    gt_dir = "./dataset/labels/Town03/front/"
-
-    max_versions = len(models)
+    max_versions = len(config.models)
     datasets = dataset.Dataset(
-        gt_dir=gt_dir,
+        gt_dir=config.gt_dir,
         det_dirs=[
-            f"./dataset/detectionresult/labels/{model}/front/" for model in models],
-        iou_th=args.iou_th
+            f"./dataset/detectionresult/labels/{model}/front/" for model in config.models],
+        iou_th=config.iou_th
     )
     result_by_version = {}
     for num_ver in range(1, max_versions + 1):
         result_by_version[num_ver] = evaluate_with_model_versions(
-            datasets, models, args.iou_th, num_ver
+            datasets, config.models, config.iou_th, num_ver
         )
     df = results_table(result_by_version)
     df.to_csv(f"./result/models_evaluation_results.csv",
@@ -281,15 +259,15 @@ if __name__ == "__main__":
     cameras = ["front", "left_1", "right_1", "left_2", "right_2"]
     max_versions = len(cameras)
     datasets = dataset.Dataset(
-        gt_dir=gt_dir,
+        gt_dir=config.gt_dir,
         det_dirs=[
             f"./dataset/detectionresult/labels/yolov8n/{camera}/" for camera in cameras],
-        iou_th=args.iou_th
+        iou_th=config.iou_th
     )
     result_by_version = {}
     for num_ver in range(1, max_versions + 1):
         result_by_version[num_ver] = evaluate_with_camera_versions(
-            datasets, cameras, args.iou_th, num_ver
+            datasets, cameras, config.iou_th, num_ver
         )
     df = results_table(result_by_version)
     df.to_csv(f"./result/cameras_evaluation_results.csv",
@@ -297,7 +275,7 @@ if __name__ == "__main__":
 
     num_version = 3
     df_model_comb = explore_model_combinations(
-        gt_dir, models, num_version, args.iou_th)
+        config.gt_dir, config.models, num_version, config.iou_th)
     print(df_model_comb)
     df_model_comb.to_csv(
         f"./result/model_combinations_evaluation_results.csv", index_label='Model Combination')
