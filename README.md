@@ -3,7 +3,8 @@ This repository contains the necessary scripts and methodology to reproduce the 
 The project introduces two novel object-wise reliability metrics, Cov_OD (Coverage of error in Object Detection) and Cer_OD (Certainty of accurate prediction in Object Detection), designed specifically for N-version object detection systems. The evaluation compares these metrics against conventional metrics (Cov, Cer, mAP) under various model and sensor diversity configurations.
 
 ### Prerequisites
-1.  Environment SetupIt's highly recommended to use a virtual environment. The evaluation script itself primarily relies on CPU power and standard data science libraries (no dedicated GPU is required for the analysis phase).
+1.  Environment\
+SetupIt's highly recommended to use a virtual environment. The evaluation script itself primarily relies on CPU power and standard data science libraries (no dedicated GPU is required for the analysis phase).
 
 ~~~Bash
 # Create a virtual environment (optional but recommended)
@@ -12,13 +13,13 @@ source venv/bin/activate  # On Linux/macOS
 # venv\Scripts\activate   # On Windows
 ~~~
 
-2. Dependencies
+2. Dependencies\
 Install the required Python packages
 ~~~Bash
 pip install pandas numpy tqdm
 ~~~
 
-3. Source Code
+3. Source Code\
 The script relies on the following file structure for the Python classes and modules:.
 ~~~
 ├── main.py
@@ -39,8 +40,8 @@ The script relies on the following file structure for the Python classes and mod
     └── dataset.py  # Contains the Dataset class and data loading/analysis logic
 ~~~
 
-4. Dataset
-The script expects the Ground Truth (GT) and pre-calculated detection results to be organized under the ./dataset directory.The data used in the paper was collected from the CARLA simulator (Town03)111111111. The dataset includes 2000 images captured by multiple cameras2.Required Directory Structure:
+4. Dataset\
+The script expects the Ground Truth (GT) and pre-calculated detection results to be organized under the ./dataset directory. The data used in the paper was collected from the CARLA simulator (Town03). The dataset includes 2000 images captured by multiple cameras. 
 ~~~
 ./dataset/
 ├── labels/
@@ -63,5 +64,5 @@ The script expects the Ground Truth (GT) and pre-calculated detection results to
 python main.py
 ~~~
 
-2. Output
+2. Output\
 The script executes and saves the results in the ./result directory:
