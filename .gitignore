@@ -1,0 +1,5 @@
+__pycache__
+/dataset/detectionresult/images
+/result
+/dataset/detectionresult/labels/fastrcnn
+/dataset/images/
