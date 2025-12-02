@@ -24,20 +24,15 @@ class CovOD:
 
     def update(self, intersection_errors: Dict[str, dict], total_instances: Dict[str, dict]) -> None:
         """
-        Updates the accumulated common error ratio (`self.val`) for a single frame.
-
-        The per-frame common error ratio is calculated as:
-        $$
-        \frac{\text{Intersection Errors (FP} \cap \text{FN)}}{\text{Total Instances (TP}_{\cap} + \text{FP}_{\cup} + \text{FN}_{\cup})}
-        $$
+        Updates the accumulated common error ratio for a single frame.
 
         Args:
-            intersection_errors (Dict[str, dict]): Dictionary containing the **Intersection** of FP and FN boxes 
+            intersection_errors (Dict[str, dict]): Dictionary containing the Intersection of FP and FN boxes 
                                                    across all model versions (i.e., errors observed in ALL versions).
                                                    Format: `{'FP': {class_id: [boxes]}, 'FN': {class_id: [boxes]}}`.
             total_instances (Dict[str, dict]): Dictionary containing the total set of instances considered 
-                                               for the denominator. This is typically: TP as Intersection ($\cap$), 
-                                               and FP/FN as Union ($\cup$).
+                                               for the denominator. This is typically: TP as Intersection, 
+                                               and FP FN as Union.
                                                Format: `{'TP': {Intersection boxes}, 'FP': {Union boxes}, 'FN': {Union boxes}}`.
         """
         intersection_fp = sum(
@@ -59,10 +54,7 @@ class CovOD:
 
     def compute(self) -> float:
         """
-        Computes the final CovOD metric from the accumulated values.
-
-        The final metric is the complement of the average common error rate:
-        $$\text{CovOD} = 1 - \frac{\sum (\text{Per-Frame Common Error Ratio})}{\text{Total Number of Frames}}$$
+        Computes the final CovOD from the accumulated values.
 
         Returns:
             float: The final CovOD metric (system reliability against common failures). 

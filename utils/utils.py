@@ -1,7 +1,3 @@
-from typing import List, Tuple
-import numpy as np
-import cv2
-
 SIZE_THRESHOLD = 500
 CONF_THRESHOLD = 0
 IM_WIDTH = 800

@@ -22,9 +22,6 @@ class Cer:
         """
         Updates the frame counters based on the detection results of a single frame.
 
-        If `not all(is_correct_list)` is True, meaning at least one model version 
-        failed (FP or FN), the frame is counted as an error frame.
-
         Args:
             is_correct_list (List[bool]): A list of boolean flags, where each element 
                                           indicates if a model version achieved **perfect 

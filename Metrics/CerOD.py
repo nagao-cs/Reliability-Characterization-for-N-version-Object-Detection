@@ -37,7 +37,7 @@ class CerOD:
                                             Format: `{'FP': {class_id: [boxes]}, 'FN': {class_id: [boxes]}}`.
             total_instances (Dict[str, dict]): Dictionary containing the total set of instances considered 
                                                for the denominator, which is typically: TP as Intersection, 
-                                               and FP/FN as Union.
+                                               and FP FN as Union.
                                                Format: `{'TP': {Intersection boxes}, 'FP': {Union boxes}, 'FN': {Union boxes}}`.
         """
         # Sum the counts of False Positives in the Union set
@@ -64,10 +64,7 @@ class CerOD:
 
     def compute(self) -> float:
         """
-        Computes the final CerOD (Coverage) metric from the accumulated values.
-
-        The final metric is the complement of the average error rate:
-        $$\text{Coverage/Reliability} = 1 - \frac{\sum (\text{Per-Frame Error Ratio})}{\text{Total Number of Frames}}$$
+        Computes the final CerOD from the accumulated values.
 
         Returns:
             float: The final Coverage metric. Returns 1.0 if no frames have been processed.
